@@ -249,7 +249,7 @@ var Output = (function(Core) {
     return Output;
 })(Core);
 
-var MasterControl = (function (Input, Core) {
+var MasterControl = (function (Input, CircularShift, Alphabetizing, Output) {
 
     var MasterControl = {};
 
@@ -261,7 +261,7 @@ var MasterControl = (function (Input, Core) {
     };
 
     return MasterControl;
-})(Input, Core);
+})(Input, CircularShift, Alphabetizing, Output);
 
 
 
