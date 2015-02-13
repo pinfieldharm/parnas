@@ -120,6 +120,135 @@ var CircularShift = (function (Core){
     return CircularShift;
 })(Core);
 
+var Alphabetizing = (function(Core) {
+
+    var Alphabetizing = {};
+
+    function nextPos(pos) {
+
+        if (pos[1] < 3) {
+            return [pos[0], pos[1]+1];
+        } else {
+            return [pos[0] + 1, 0];
+        }
+
+    }
+
+    function comparePositions(pos1, pos2) {
+        var c1 = Core.inputData[pos1[0]][pos1[1]].toLowerCase();
+        var c2 = Core.inputData[pos2[0]][pos2[1]].toLowerCase();
+
+        if (c1 < c2) return -1;
+        if (c1 > c2) return 1;
+        if (c1 == '\t') return 0;
+
+        return comparePositions(nextPos(pos1), nextPos(pos2));
+
+    }
+
+    function compareShifts(shift1, shift2) {
+        return comparePositions(shift1[0], shift2[0]);
+    }
+
+    Alphabetizing.alphabetize = function() {
+        Core.alphabetizedShifts = Core.shifts.slice(0);
+        Core.alphabetizedShifts.sort(compareShifts);
+    };
+
+    return Alphabetizing;
+
+})(Core);
+
+var Output = (function(Core) {
+
+    var Output = {};
+
+
+    // Copied from CircularShift!!!! Trying to keep module boundaries
+    function nextLineEnd(lineIndex, lineStart) {
+        var nextLineStart = Core.lineStarts[lineIndex+1];
+
+        if (nextLineStart) {
+            if (nextLineStart[1] == 0) {
+                return [nextLineStart[0] - 1, 3];
+            } else {
+                return [nextLineStart[0], nextLineStart[1] - 1]
+            }
+        } else {
+            return [Core.inputData.length - 1, Core.inputData[Core.inputData.length - 1].length - 1]
+        }
+
+    }
+
+    // Copied from CircularShift!!!! Trying to keep module boundaries
+    function isBefore(pos, lineEnd) {
+        if (pos[0] < lineEnd[0]) return true;
+        if (pos[0] == lineEnd[0] && pos[1] <= lineEnd[1]) return true;
+        return false;
+    }
+
+    // Copied from Alphabetizing!!! Trying to keep module boundaries (and found a bug in it!)
+    function nextPos(pos) {
+
+        if (pos[1] < 3) {
+            return [pos[0], pos[1]+1];
+        } else {
+            return [pos[0] + 1, 0];
+        }
+
+    }
+
+    function posEqual(pos1, pos2) {
+        return pos1[0] == pos2[0] && pos1[1] == pos2[1];
+    }
+
+    function printShift(shift) {
+        var shiftStart = shift[0];
+        var lineIndex = shift[1];
+        var lineStart = Core.lineStarts[lineIndex];
+        var lineEnd = nextLineEnd(lineIndex, lineStart);
+
+        var output = document.getElementById('output');
+
+        var row = document.createElement('div');
+        row.className = 'row';
+        output.appendChild(row);
+
+
+        var s = "<div class='left'>";
+        var inTerm = false;
+        for (var pos = lineStart; isBefore(pos, lineEnd); pos = nextPos(pos)) {
+            if (posEqual(shiftStart, pos)) {
+                inTerm = true;
+                s += '</div><div class="right"><div class="inside-right"><div class="inside-right-row"><div class="term">'
+            }
+            var c = Core.inputData[pos[0]][pos[1]];
+
+            if (c == '\t') {
+                if (inTerm) {
+                    inTerm = false;
+                    s += '</div><div class="remainder">';
+                } else {
+                    s += ' ';
+                }
+            } else {
+                s += c;
+            }
+        }
+        s += "</div></div></div>";
+        row.innerHTML = s;
+    }
+
+    Output.printShifts = function() {
+        for (var i = 0; i < Core.alphabetizedShifts.length; i++) {
+            var shift = Core.alphabetizedShifts[i];
+            printShift(shift);
+        }
+    };
+
+    return Output;
+})(Core);
+
 var MasterControl = (function (Input, Core) {
 
     var MasterControl = {};
@@ -127,7 +256,8 @@ var MasterControl = (function (Input, Core) {
     MasterControl.run = function () {
         Input.readLines();
         CircularShift.prepareShifts();
-        console.log(Core.shifts);
+        Alphabetizing.alphabetize();
+        Output.printShifts();
     };
 
     return MasterControl;

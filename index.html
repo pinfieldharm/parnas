@@ -2,9 +2,43 @@
 <head>
     <title>Parnas implementation</title>
     <script src="modularization1.js"></script>
+    <style>
+        #output {
+            position: relative;
+            display: table;
+        }
+
+        .row {
+            display: table-row;
+        }
+
+        .left {
+            text-align: right;
+        }
+
+        .left, .right, .term, .remainder {
+            display: table-cell;
+        }
+
+        .inside-right {
+            display: table;
+        }
+
+        .inside-right-row {
+            display: table-row;
+        }
+
+        .term {
+            padding-left: 5px;
+            padding-right: 5px;
+            font-weight: bold;
+        }
+
+    </style>
 </head>
 <body onload="MasterControl.run()">
 
+<h2>Input</h2>
 
 <pre id="input">
 When to the sessions of sweet silent thought
@@ -22,6 +56,8 @@ Which I new pay as if not paid before.
 But if the while I think on thee, dear friend,
 All losses are restor'd and sorrows end.
 </pre>
+
+<h2>Index</h2>
 
 <div id="output">
 
